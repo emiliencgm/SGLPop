@@ -56,6 +56,7 @@ config['if_double_label'] = args.if_double_label
 config['if_tsne'] = args.if_tsne 
 config['tsne_group'] = eval(args.tsne_group)
 config['eps_SimGCL'] = args.eps_SimGCL
+config['init_method'] = args.init_method
 #备注
 config['comment'] = args.comment
 #加载预训练的embedding
@@ -65,7 +66,7 @@ config['item_emb'] = 0
 #打印在TensorboardX的参数信息
 log = {}
 #LogItems = ['temp_tau', 'edge_drop_prob', 'num_layers', 'lr', 'weight_decay', 'seed', 'bpr_batch_size', 'lambda1', 'dataset', 'pop_rate', 'if_pop', 'pop_mode']
-LogItems = ['if_pop', 'pop_mode', 'edge_drop_prob', 'lambda1', 'P_e_drop1', 'P_e_add1', 'P_e_drop2', 'P_e_add2', 'comment']
+LogItems = ['if_pop', 'pop_mode', 'edge_drop_prob', 'lambda1', 'P_e_drop1', 'P_e_add1', 'P_e_drop2', 'P_e_add2', 'init_method','comment']
 for key in LogItems:
     log[key] = config[key]
 
@@ -139,24 +140,42 @@ def visualize_tsne(embedding, label, epoch, figsize=(30,30)):
     '''
     with torch.no_grad():
         #只展示最热门和最冷门
-        data = embedding.weight.cpu()
-        keep_idx = torch.zeros(len(data))
-        for item in range(len(data)):
-            if label[item] in config['tsne_group']:
-                keep_idx[item] = 1.
+        items = embedding['items'].weight.cpu()
+        users = embedding['users'].weight.cpu()
+        keep_idx_item = torch.zeros(len(items))
+        keep_idx_user = torch.zeros(len(users))
+        label_item = label['items'].copy()
+        label_user = label['users'].copy()
+
+        for item in range(len(items)):
+            if label_item[item] in config['tsne_group']:
+                keep_idx_item[item] = 1.
             else:
                 pass
-        keep_idx = keep_idx.to(torch.bool)
-        data = data[keep_idx]
-        label = label.copy()[keep_idx]
+        for user in range(len(users)):
+            if label_user[user] in config['tsne_group']:
+                keep_idx_user[user] = 1.
+            else:
+                pass
+
+        keep_idx_item = keep_idx_item.to(torch.bool)
+        keep_idx_user = keep_idx_user.to(torch.bool)
+
+        items = items[keep_idx_item]
+        users = users[keep_idx_user]
+        label_item = label_item[keep_idx_item]
+        label_user = label_user[keep_idx_user]
+
         title = ''
         for key in LogItems:
             if key != 'comment':
                 title += str(key) + ':' + str(config[key]) + '-'
-        X = TSNE(perplexity=config['perplexity'], init='pca', method='barnes_hut').fit_transform(data)#TODO 其他参数可调
+        embs = torch.cat((items, users), dim=0)
+        X = TSNE(perplexity=config['perplexity'], init='pca', method='barnes_hut').fit_transform(embs)#TODO 其他参数可调
         #X = TSNE(perplexity=config['perplexity']).fit_transform(data)
         plt.figure(figsize=figsize)
-        plt.scatter(X[:,0],X[:,1], c=label, cmap='coolwarm')
+        plt.scatter(X[:len(items),0],X[:len(items),1], c=label_item, cmap='coolwarm')
+        plt.scatter(X[len(items):,0],X[len(items):,1], c=label_user, cmap='Pastel2_r')
         plt.xticks([])
         plt.yticks([])
         plt.title(title+'\n'+str(config['comment'])+'-PCA-Barnes_Hut-Perplexity'+str(config['perplexity'])+'@'+str(epoch), fontdict={'weight':'normal','size': 30})

@@ -52,6 +52,7 @@ class Loader(Dataset):
 
         #================Pop=================#
         TrainTestPop = {}
+        TrainTestPop_user = {}
         #================Pop=================#
 
         with open(train_file) as f:
@@ -71,7 +72,11 @@ class Loader(Dataset):
                         if item in TrainTestPop.keys():
                             TrainTestPop[item] += 1
                         else:
-                            TrainTestPop[item] = 0
+                            TrainTestPop[item] = 1
+                    if uid in TrainTestPop_user.keys():
+                        TrainTestPop_user[uid] += len(items)
+                    else:
+                        TrainTestPop_user[uid] = len(items)
                     #================Pop=================#
         self.trainUniqueUsers = np.array(trainUniqueUsers)
         self.trainUser = np.array(trainUser)
@@ -95,7 +100,11 @@ class Loader(Dataset):
                             if item in TrainTestPop.keys():
                                 TrainTestPop[item] += 1
                             else:
-                                TrainTestPop[item] = 0
+                                TrainTestPop[item] = 1
+                        if uid in TrainTestPop_user.keys():
+                            TrainTestPop_user[uid] += len(items)
+                        else:
+                            TrainTestPop_user[uid] = len(items)
                         #================Pop=================#
         self.testUniqueUsers = np.array(testUniqueUsers)
         self.testUser = np.array(testUser)
@@ -121,7 +130,11 @@ class Loader(Dataset):
                                 if item in TrainTestPop.keys():
                                     TrainTestPop[item] += 1
                                 else:
-                                    TrainTestPop[item] = 0
+                                    TrainTestPop[item] = 1
+                            if uid in TrainTestPop_user.keys():
+                                TrainTestPop_user[uid] += len(items)
+                            else:
+                                TrainTestPop_user[uid] = len(items)
                             #================Pop=================#
             self.validUniqueUsers = np.array(validUniqueUsers)
             self.validUser = np.array(validUser)
@@ -143,11 +156,16 @@ class Loader(Dataset):
 
         #================Pop=================#
         self._itemPop_dict, self._reverse_itemPop_dict, self._testDict_pop = self.__build_pop(TrainTestPop)
+        self._userPop_dict, self._reverse_userPop_dict = self.__build_pop_user(TrainTestPop_user)
         self._TrainTestPop = TrainTestPop
         self._item_pop_label = []
+        self._user_pop_label = []
         for item in range(self.m_item):
             self._item_pop_label.append(self._reverse_itemPop_dict[item])
         self._item_pop_label = np.array(self._item_pop_label)
+        for user in range(self.n_user):
+            self._user_pop_label.append(self._reverse_userPop_dict[user])
+        self._user_pop_label = np.array(self._user_pop_label)
         #================Pop=================#
 
         print(f"{config['dataset']} is ready to go")
@@ -195,6 +213,13 @@ class Loader(Dataset):
         return self._item_pop_label
 
     @property
+    def user_pop_label(self):
+        '''
+        np.array([pop1, pop2, ...])
+        '''
+        return self._user_pop_label
+
+    @property
     def testDict_pop(self):
         '''
         {\n
@@ -216,7 +241,7 @@ class Loader(Dataset):
         ItemPopGroupDict = {}#查询分组中有哪些item的字典
         testDict_PopGroup = {}#查询不同分组下用户在Test集中交互过的item的字典
         reverse_ItemPopGroupDict = {}#查询item属于哪个分组的字典
-        #按照Pop分组，并存储至字典
+        #按照Pop分组，并存储至字典[0=Cold, 9=Hot]
         for group in range(num_group):
             ItemPopGroupDict[group] = []
             if group == num_group-1:
@@ -256,6 +281,41 @@ class Loader(Dataset):
                     testDict_PopGroup[group][user] = [999999999999999]#缺省值
         #print(testDict_PopGroup[0])
         return ItemPopGroupDict, reverse_ItemPopGroupDict, testDict_PopGroup
+    
+    def __build_pop_user(self, TrainTestPop_user):
+        '''
+        TrainTestPop_user
+        '''
+        num_group = world.config['pop_group']
+        user_per_group = int(self.n_users / num_group)
+        TrainTestPopSorted = sorted(TrainTestPop_user.items(), key=lambda x: x[1])
+        UserPopGroupDict = {}#查询分组中有哪些item的字典
+        reverse_UserPopGroupDict = {}#查询item属于哪个分组的字典
+        #按照Pop分组，并存储至字典[0=Cold, 9=Hot]
+        for group in range(num_group):
+            UserPopGroupDict[group] = []
+            if group == num_group-1:
+                for user, _ in TrainTestPopSorted[group * user_per_group:]:
+                    UserPopGroupDict[group].append(user)
+            else:
+                for user, _ in TrainTestPopSorted[group * user_per_group: (group+1) * user_per_group]:
+                    UserPopGroupDict[group].append(user)
+        #转换为tensor格式
+        for group, users in UserPopGroupDict.items():
+            UserPopGroupDict[group] = torch.tensor(users)
+        
+        #生成查询item属于哪个分组的字典
+        for user in range(self.n_users):
+            group = -1
+            for i in range(num_group):
+                if user in UserPopGroupDict[i]:
+                    group = i
+                    break
+            reverse_UserPopGroupDict[user] = group
+
+        
+        return UserPopGroupDict, reverse_UserPopGroupDict
+
     #================Pop=================#
 
 

@@ -22,7 +22,8 @@ def parse_args():
     parser.add_argument('--model', type=str, default='SGL-ED', help="Now available:\n\
                                                                      ###SGL-ED: Edge Drop (Default drop prob = edge_drop_prob = 0.1 if if_pop==0)\n\
                                                                      ###SGL-RW: Random Walk (num_layers * [sub-EdgeDrop])\n\
-                                                                     Aug prob in 2 contrast (sub-)views: (P_e_drop1, P_e_add1) <--> (P_e_drop2, P_e_add2)\n")
+                                                                     Aug prob in 2 contrast (sub-)views: (P_e_drop1, P_e_add1) <--> (P_e_drop2, P_e_add2)\n\
+                                                                     ###SimGCL: Strong and Simple Non Augmentation Contrastive Model")
 
     parser.add_argument('--if_load_embedding', type=int, default=0, help="whether load trained embedding")
     parser.add_argument('--if_tensorboard', type=int, default=1, help="whether use tensorboardX")
@@ -51,12 +52,13 @@ def parse_args():
     parser.add_argument('--P_e_drop2', type=float, default=0.3, help="P_e of Item Augmentation to Drop Edge for Hot Items for view 2")
     parser.add_argument('--P_e_add2', type=float, default=0.8, help="P_e of Item Augmentation to Add Edge for Cold Items for view 2")
     parser.add_argument('--comment', type=str, default='', help="comment for the experiment")
-    parser.add_argument('--perplexity', type=int, default=50, help="perplexity for T-SNE")
+    parser.add_argument('--perplexity', type=int, default=300, help="perplexity for T-SNE")
     parser.add_argument('--tsne_epoch', type=int, default=1, help="t-sne visualize every tsne_epoch")
     parser.add_argument('--if_double_label', type=int, default=0, help="whether use item categories label along with popularity group")
     parser.add_argument('--if_tsne', type=int, default=1, help="whether use t-SNE")
     parser.add_argument('--tsne_group', nargs='?', default='[0, 9]', help="groups [0, 9] for t-SNE")
     parser.add_argument('--eps_SimGCL', type=float, default=0.1, help="epsilon for noise coef in SimGCL")
+    parser.add_argument('--init_method', type=str, default='Xavier', help="UI embeddings init method: Xavier or Normal")
 
     return parser.parse_args()
 

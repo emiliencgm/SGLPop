@@ -55,7 +55,9 @@ try:
         start = time.time()
         if world.config['if_tsne'] == 1 and epoch % world.config['tsne_epoch'] == 0:
             cprint("[t-SNE]")
-            world.visualize_tsne(Recmodel.embedding_item, dataset.item_pop_label, epoch)
+            emb = {'users': Recmodel.embedding_user, 'items':Recmodel.embedding_item}
+            label = {'items': dataset.item_pop_label, 'users': dataset.user_pop_label}
+            world.visualize_tsne(emb, label, epoch)
         if world.config['model'] in ['SGL-ED', 'SGL-RW']:
             cprint("[Data Augment]")
             contrast_views = contrast_model.get_views()

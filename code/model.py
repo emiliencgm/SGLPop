@@ -34,9 +34,16 @@ class SGL_ED(nn.Module):
         self.embedding_item = torch.nn.Embedding(num_embeddings=self.num_items, embedding_dim=self.latent_dim)
 
         if self.config['if_pretrain'] == 0:
-            world.cprint('use NORMAL distribution UI for Embedding')
-            nn.init.normal_(self.embedding_user.weight, std=0.1)
-            nn.init.normal_(self.embedding_item.weight, std=0.1)
+            if world.config['init_method'] == 'Normal':
+                world.cprint('use NORMAL distribution UI for Embedding')
+                nn.init.normal_(self.embedding_user.weight, std=0.1)
+                nn.init.normal_(self.embedding_item.weight, std=0.1)
+            elif world.config['init_method'] == 'Xavier':
+                world.cprint('use Xavier_uniform distribution UI for Embedding')
+                nn.init.xavier_uniform_(self.embedding_user.weight, gain=1.0)
+                nn.init.xavier_uniform_(self.embedding_item.weight, gain=1.0)
+            else:
+                raise TypeError('init method')
         else:
             self.embedding_user.weight.data.copy_(torch.from_numpy(self.config['user_emb']))
             self.embedding_item.weight.data.copy_(torch.from_numpy(self.config['item_emb']))
@@ -126,11 +133,17 @@ class SGL_ED(nn.Module):
                         all_emb = torch.cat(temp_emb, dim=0)
                     else:
                         all_emb = torch.sparse.mm(g_droped, all_emb)
+                    '''
                     with torch.no_grad():
                         low = torch.zeros_like(all_emb).float()
                         high = torch.ones_like(all_emb).float()
                         random_noise = torch.distributions.uniform.Uniform(low, high).sample()
                         noise = torch.mul(torch.sign(all_emb),torch.nn.functional.normalize(random_noise, dim=1)) * world.config['eps_SimGCL']
+                    '''
+                    low = torch.zeros_like(all_emb).float()
+                    high = torch.ones_like(all_emb).float()
+                    random_noise = torch.distributions.uniform.Uniform(low, high).sample()
+                    noise = torch.mul(torch.sign(all_emb),torch.nn.functional.normalize(random_noise, dim=1)) * world.config['eps_SimGCL']
                     all_emb += noise
                     embs.append(all_emb)
             else:
