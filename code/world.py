@@ -58,6 +58,7 @@ config['if_tsne'] = args.if_tsne
 config['tsne_group'] = eval(args.tsne_group)
 config['eps_SimGCL'] = args.eps_SimGCL
 config['init_method'] = args.init_method
+config['tsne_points'] = args.tsne_points
 #备注
 config['comment'] = args.comment
 #加载预训练的embedding
@@ -168,8 +169,8 @@ def visualize_tsne(embedding, label, epoch, figsize=(30,30)):
         label_user = label_user[keep_idx_user]
 
         #随机采样其中的1000个点
-        keep_random1 = np.random.choice(np.arange(len(items)), size=1000, replace=False)
-        keep_random2 = np.random.choice(np.arange(len(users)), size=1000, replace=False)
+        keep_random1 = np.random.choice(np.arange(len(items)), size=config['tsne_points'], replace=False)
+        keep_random2 = np.random.choice(np.arange(len(users)), size=config['tsne_points'], replace=False)
 
         items = items[keep_random1]
         users = users[keep_random2]

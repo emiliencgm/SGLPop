@@ -59,6 +59,7 @@ def parse_args():
     parser.add_argument('--tsne_group', nargs='?', default='[0, 9]', help="groups [0, 9] for t-SNE")
     parser.add_argument('--eps_SimGCL', type=float, default=0.1, help="epsilon for noise coef in SimGCL")
     parser.add_argument('--init_method', type=str, default='Xavier', help="UI embeddings init method: Xavier or Normal")
+    parser.add_argument('--tsne_points', type=int, default=2000, help="Num of points of users/items in t-SNE")
 
     return parser.parse_args()
 
