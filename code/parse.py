@@ -15,10 +15,10 @@ def parse_args():
     parser.add_argument('--latent_dim_rec', type=int, default=64, help="latent dim for rec")
     parser.add_argument('--num_layers', type=int, default=3, help="num layers of LightGCN")
     parser.add_argument('--if_pretrain', type=int, default=0, help="whether use pretrained Embedding")
-    parser.add_argument('--dataset', type=str, default='gowalla', help="dataset:[yelp2018,  amazon-book,  MIND]")
+    parser.add_argument('--dataset', type=str, default='yelp2018', help="dataset:[yelp2018,  amazon-book,  MIND]")
     parser.add_argument('--lr', type=float, default=0.001, help="learning rate")
     parser.add_argument('--weight_decay', type=float, default=1e-4, help="weight decay == lambda2")
-    parser.add_argument('--seed', type=int, default=2021, help="random seed")
+    parser.add_argument('--seed', type=int, default=2022, help="random seed")
     parser.add_argument('--model', type=str, default='SGL-ED', help="Now available:\n\
                                                                      ###SGL-ED: Edge Drop (Default drop prob = edge_drop_prob = 0.1 if if_pop==0)\n\
                                                                      ###SGL-RW: Random Walk (num_layers * [sub-EdgeDrop])\n\
@@ -52,7 +52,7 @@ def parse_args():
     parser.add_argument('--P_e_drop2', type=float, default=0.3, help="P_e of Item Augmentation to Drop Edge for Hot Items for view 2")
     parser.add_argument('--P_e_add2', type=float, default=0.8, help="P_e of Item Augmentation to Add Edge for Cold Items for view 2")
     parser.add_argument('--comment', type=str, default='', help="comment for the experiment")
-    parser.add_argument('--perplexity', type=int, default=300, help="perplexity for T-SNE")
+    parser.add_argument('--perplexity', type=int, default=200, help="perplexity for T-SNE")
     parser.add_argument('--tsne_epoch', type=int, default=1, help="t-sne visualize every tsne_epoch")
     parser.add_argument('--if_double_label', type=int, default=0, help="whether use item categories label along with popularity group")
     parser.add_argument('--if_tsne', type=int, default=1, help="whether use t-SNE")

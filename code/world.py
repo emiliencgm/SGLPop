@@ -17,6 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 
+
 args = parse_args()
 os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
@@ -165,6 +166,16 @@ def visualize_tsne(embedding, label, epoch, figsize=(30,30)):
         users = users[keep_idx_user]
         label_item = label_item[keep_idx_item]
         label_user = label_user[keep_idx_user]
+
+        #随机采样其中的1000个点
+        keep_random1 = np.random.choice(np.arange(len(items)), size=1000, replace=False)
+        keep_random2 = np.random.choice(np.arange(len(users)), size=1000, replace=False)
+
+        items = items[keep_random1]
+        users = users[keep_random2]
+        label_item = label_item[keep_random1]
+        label_user = label_user[keep_random2]
+
 
         title = ''
         for key in LogItems:
