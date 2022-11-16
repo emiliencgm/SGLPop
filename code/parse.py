@@ -32,7 +32,7 @@ def parse_args():
     parser.add_argument('--early_stop_steps', type=int, default=20, help="early stop steps")
     parser.add_argument('--bpr_batch_size', type=int, default=2048, help="batch size in BPR_Contrast_Train")
     parser.add_argument('--lambda1', type=float, default=0.1, help="lambda1 == coef of InfoNCEloss")
-    parser.add_argument('--topks', nargs='?', default=[20], help="topks [@20] for test")
+    parser.add_argument('--topks', nargs='?', default='[20]', help="topks [@20] for test")
     parser.add_argument('--test_u_batch_size', type=int, default=2048, help="users batch size for test")
     parser.add_argument('--pop_group', type=int, default=10, help="Num of groups of Popularity")
     parser.add_argument('--if_pop', type=int, default=1, help="whether user popular-aware augmentation")

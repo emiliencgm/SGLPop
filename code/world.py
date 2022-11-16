@@ -40,7 +40,7 @@ config['if_multicore'] = args.if_multicore
 config['early_stop_steps'] = args.early_stop_steps
 config['bpr_batch_size'] = args.bpr_batch_size
 config['lambda1'] = args.lambda1
-config['topks'] = args.topks
+config['topks'] = eval(args.topks)
 config['test_u_batch_size'] = args.test_u_batch_size
 config['pop_group'] = args.pop_group
 config['if_pop'] = args.if_pop
@@ -74,7 +74,7 @@ for key in LogItems:
 
 
 #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!记得修改根目录
-ROOT_PATH = "/home/newdisk/cgm/code/Pop2"
+ROOT_PATH = "/home/cgm/SGLPop"
 CODE_PATH = join(ROOT_PATH, 'code')
 DATA_PATH = join(ROOT_PATH, 'data')
 BOARD_PATH = join(CODE_PATH, f"runs/{config['dataset']}")
