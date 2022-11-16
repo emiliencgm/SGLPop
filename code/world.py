@@ -135,7 +135,7 @@ def make_print_to_file(path=LOG_FILE):
     fileName = datetime.datetime.now().strftime(f"%m_%d_%Hh%Mm%Ss-{config['comment']}")
     sys.stdout = Logger(fileName + f"-{config['dataset']}-" +'.log', path=path)
  
-def visualize_tsne(embedding, label, epoch, figsize=(30,30)):
+def visualize_tsne(embedding, label, epoch, figsize=(20,20)):
     '''
     embedding: Recmodel.item_embedding
     label: np.array([pop1, pop2])
@@ -168,10 +168,15 @@ def visualize_tsne(embedding, label, epoch, figsize=(30,30)):
         label_item = label_item[keep_idx_item]
         label_user = label_user[keep_idx_user]
 
-        #随机采样其中的1000个点
-        keep_random1 = np.random.choice(np.arange(len(items)), size=config['tsne_points'], replace=False)
-        keep_random2 = np.random.choice(np.arange(len(users)), size=config['tsne_points'], replace=False)
-
+        #随机采样其中的2000个点
+        #keep_random1 = np.random.choice(np.arange(len(items)), size=config['tsne_points'], replace=False)
+        #keep_random2 = np.random.choice(np.arange(len(users)), size=config['tsne_points'], replace=False)
+        #抽取最热门的1000点和最冷门的1000点
+        size = int(config['tsne_points']/2)
+        r1 = np.arange(len(items))
+        keep_random1 = np.concatenate((r1[:size], r1[-size:]))
+        r2 = np.arange(len(users))
+        keep_random2 = np.concatenate((r2[:size], r2[-size:]))
         items = items[keep_random1]
         users = users[keep_random2]
         label_item = label_item[keep_random1]
@@ -188,9 +193,9 @@ def visualize_tsne(embedding, label, epoch, figsize=(30,30)):
         plt.figure(figsize=figsize)
         plt.scatter(X[:len(items),0],X[:len(items),1], c=label_item, cmap='coolwarm')
         plt.scatter(X[len(items):,0],X[len(items):,1], c=label_user, cmap='Pastel2_r')
-        plt.xticks([])
-        plt.yticks([])
-        plt.title(title+'\n'+str(config['comment'])+'-PCA-Barnes_Hut-Perplexity'+str(config['perplexity'])+'@'+str(epoch), fontdict={'weight':'normal','size': 30})
+        #plt.xticks([])
+        #plt.yticks([])
+        plt.title(title+'\n'+str(config['comment'])+'-PCA-Barnes_Hut-Perplexity'+str(config['perplexity'])+'@'+str(epoch), fontdict={'weight':'normal','size': 20})
         title += str(config['comment'])
         filename = os.path.join(FIG_FILE, title)
         if not os.path.exists(filename):
