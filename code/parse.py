@@ -52,7 +52,7 @@ def parse_args():
     parser.add_argument('--P_e_drop2', type=float, default=0.3, help="P_e of Item Augmentation to Drop Edge for Hot Items for view 2")
     parser.add_argument('--P_e_add2', type=float, default=0.8, help="P_e of Item Augmentation to Add Edge for Cold Items for view 2")
     parser.add_argument('--comment', type=str, default='', help="comment for the experiment")
-    parser.add_argument('--perplexity', type=int, default=200, help="perplexity for T-SNE")
+    parser.add_argument('--perplexity', type=int, default=50, help="perplexity for T-SNE")
     parser.add_argument('--tsne_epoch', type=int, default=1, help="t-sne visualize every tsne_epoch")
     parser.add_argument('--if_double_label', type=int, default=0, help="whether use item categories label along with popularity group")
     parser.add_argument('--if_tsne', type=int, default=1, help="whether use t-SNE")
